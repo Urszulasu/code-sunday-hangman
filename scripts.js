@@ -1,22 +1,27 @@
 'use strict'
 
-const wordsToChoose = ['woda', 'kamieniarz', 'spacja', 'babcia'];
 const lives = 7;
 const playButton = document.querySelector('#play');
 const wordPlace = document.querySelector('#word');
 const checkButton = document.querySelector('#checkButton');
 const letterInput = document.querySelector('#letterInput');
 const gameStatus = document.querySelector('#gameStatus');
-const showLives = document.querySelector('#lives');
+const livesPlace = document.querySelector('#lives');
+const gameArea = document.querySelector('#gameArea');
+
 let chosenWord;
 let chosenWordArray;
-let hiddenWord;
+let hiddenWordArray;
 let hiddenWordDisplay = '';
 let guessedLetters = [];
 let remainingLives;
 
+let wordsToChoose = ['woda', 'kamieniarz', 'spacja', 'babcia'];
+wordsToChoose = wordsToChoose.map(word => word.toUpperCase());
+
 function startHangman() {
     playButton.classList.add("d-none");
+    gameArea.classList.remove("d-none");
     remainingLives = lives;
     writeInDocument('', gameStatus);
     setChosenWord();
@@ -31,7 +36,7 @@ function checkLetter() {
 }
 
 function checkForWinningsOrLooses() {
-    let wordIsGuessed = !hiddenWord.some(letter => letter === '_');
+    let wordIsGuessed = !hiddenWordArray.some(letter => letter === '_');
     let livesLeft = remainingLives === 0;
 
     if (wordIsGuessed) {
@@ -52,7 +57,7 @@ function checkIfGuessed(value) {
     } else if (chosenWordArray.some(v => v === value)) {
         chosenWordArray.forEach((letter, index) => {
             if (letter === value) {
-                hiddenWord[index] = value;
+                hiddenWordArray[index] = value;
             }
         });
         writeInDocument('Zgadłeś!', gameStatus);
@@ -63,42 +68,43 @@ function checkIfGuessed(value) {
     }
 }
 
-function chooseWord(wordsToChoose) {
-    return wordsToChoose[Math.floor(Math.random() * wordsToChoose.length)].toUpperCase();
+function chooseWord(wordsArray) {
+    return wordsArray[Math.floor(Math.random() * wordsToChoose.length)];
 }
 
-function removeWordFromArray(word, array) {
-    let index = array.indexOf(word);
-    array.splice(index, 1);
+function removeWordFromArray(word, wordsArray) {
+    let index = wordsArray.indexOf(word);
+    wordsArray.splice(index, 1);
 }
 
 function setChosenWord() {
     chosenWord = chooseWord(wordsToChoose);
     removeWordFromArray(chosenWord, wordsToChoose);
     chosenWordArray = Array.from(chosenWord);
-    hiddenWord = Array.from(chosenWord).map(letter => { return '_' });
+    hiddenWordArray = Array.from(chosenWord).map(letter => { return '_' });
+    guessedLetters = [];
 }
 
 function setHiddenWordDisplay() {
     hiddenWordDisplay = '';
-    hiddenWord.forEach(letter => {
+    hiddenWordArray.forEach(letter => {
         hiddenWordDisplay = hiddenWordDisplay + ' ' + letter;
     });
 }
 
 function setDocumentState() {
     setHiddenWordDisplay();
-    writeInDocument(remainingLives, showLives);
+    writeInDocument(remainingLives, livesPlace);
     writeInDocument(hiddenWordDisplay, wordPlace);
-}
-
-function writeInDocument(word, node) {
-    node.innerHTML = word;
 }
 
 function setDocumentStateAfterGuess() {
     letterInput.value = null;
     setDocumentState();
+}
+
+function writeInDocument(word, node) {
+    node.innerHTML = word;
 }
 
 playButton.addEventListener('click', () => {
