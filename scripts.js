@@ -1,6 +1,6 @@
 'use strict'
 
-const lives = 7;
+const lives = 10;
 const playButton = document.querySelector('#play');
 const wordPlace = document.querySelector('#word');
 const checkButton = document.querySelector('#checkButton');
@@ -19,6 +19,13 @@ let remainingLives;
 let wordsToChoose = ['woda', 'kamieniarz', 'spacja', 'babcia'];
 wordsToChoose = wordsToChoose.map(word => word.toUpperCase());
 
+// Hangman
+const myHangman = document.getElementById("hangman");
+const context = myHangman.getContext('2d');
+context.beginPath();
+context.strokeStyle = "#000";
+context.lineWidth = 2;
+
 function startHangman() {
     playButton.classList.add("d-none");
     gameArea.classList.remove("d-none");
@@ -26,6 +33,7 @@ function startHangman() {
     writeInDocument('', gameStatus);
     setChosenWord();
     setDocumentState();
+    resetHangman();
 }
 
 function checkLetter() {
@@ -54,6 +62,7 @@ function checkIfGuessed(value) {
     if (guessedLetters.some(letter => letter === value)) {
         writeInDocument('Było!', gameStatus);
         remainingLives--;
+        animateHangman();
     } else if (chosenWordArray.some(v => v === value)) {
         chosenWordArray.forEach((letter, index) => {
             if (letter === value) {
@@ -65,6 +74,7 @@ function checkIfGuessed(value) {
     } else {
         writeInDocument('Nie zgadłeś', gameStatus);
         remainingLives--;
+        animateHangman();
     }
 }
 
@@ -106,6 +116,66 @@ function setDocumentStateAfterGuess() {
 function writeInDocument(word, node) {
     node.innerHTML = word;
 }
+
+function animateHangman() {
+    let drawMe = remainingLives;
+    drawArray[drawMe]();
+}
+
+function resetHangman() {
+    context.clearRect(0, 0, myHangman.width, myHangman.height);
+    context.beginPath();
+}
+
+function draw($pathFromx, $pathFromy, $pathTox, $pathToy) {
+    context.moveTo($pathFromx, $pathFromy);
+    context.lineTo($pathTox, $pathToy);
+    context.stroke();
+}
+
+const head = function () {
+    context.beginPath();
+    context.arc(60, 25, 10, 0, Math.PI * 2, true);
+    context.stroke();
+}
+
+const frame1 = function () {
+    draw(0, 150, 150, 150);
+};
+
+const frame2 = function () {
+    draw(10, 0, 10, 600);
+};
+
+const frame3 = function () {
+    draw(0, 5, 70, 5);
+};
+
+const frame4 = function () {
+    draw(60, 5, 60, 15);
+};
+
+const torso = function () {
+    draw(60, 36, 60, 70);
+};
+
+const rightArm = function () {
+    draw(60, 46, 100, 50);
+};
+
+const leftArm = function () {
+    draw(60, 46, 20, 50);
+};
+
+const rightLeg = function () {
+    draw(60, 70, 100, 100);
+};
+
+const leftLeg = function () {
+    draw(60, 70, 20, 100);
+};
+
+const drawArray = [rightLeg, leftLeg, rightArm, leftArm, torso, head, frame4, frame3, frame2, frame1];
 
 playButton.addEventListener('click', () => {
     startHangman();
